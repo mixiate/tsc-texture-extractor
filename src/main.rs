@@ -2,6 +2,7 @@ mod arc;
 mod deswizzle;
 mod rle_textures;
 mod the_sims;
+mod the_sims_bustin_out;
 
 fn save_texture(image: image::RgbaImage, name: &str, output_path: &std::path::Path, specular: bool) {
     if specular {
@@ -55,6 +56,7 @@ struct Cli {
     command: CliCommands,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(clap::Subcommand)]
 enum CliCommands {
     TheSims {
@@ -62,6 +64,10 @@ enum CliCommands {
         output_path: std::path::PathBuf,
     },
     TheSimsRle {
+        rletextures_path: std::path::PathBuf,
+        output_path: std::path::PathBuf,
+    },
+    TheSimsBustinOutRle {
         rletextures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -83,6 +89,12 @@ fn main() {
             output_path,
         } => {
             the_sims::extract_rle_textures(rletextures_path, output_path);
+        }
+        CliCommands::TheSimsBustinOutRle {
+            rletextures_path,
+            output_path,
+        } => {
+            the_sims_bustin_out::extract_rle_textures(rletextures_path, output_path);
         }
     }
 }

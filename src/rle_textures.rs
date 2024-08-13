@@ -1,4 +1,4 @@
-pub fn convert(bytes: &[u8]) -> image::RgbaImage {
+pub fn convert(bytes: &[u8], multiply_alpha: bool) -> image::RgbaImage {
     let palette = &bytes[1..(1 + (256 * 4))];
 
     let bytes = &bytes[(256 * 4) + 5..];
@@ -28,7 +28,10 @@ pub fn convert(bytes: &[u8]) -> image::RgbaImage {
         pixels.push(palette[usize::from(palette_index) * 4]);
         pixels.push(palette[(usize::from(palette_index) * 4) + 1]);
         pixels.push(palette[(usize::from(palette_index) * 4) + 2]);
-        pixels.push(palette[(usize::from(palette_index) * 4) + 3]);
+
+        let alpha = palette[(usize::from(palette_index) * 4) + 3];
+        let alpha = if multiply_alpha { alpha.saturating_mul(2) } else { alpha };
+        pixels.push(alpha);
     }
 
     let image = image::RgbaImage::from_raw(256, 256, pixels).unwrap();
