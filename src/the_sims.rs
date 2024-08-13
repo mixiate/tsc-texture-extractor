@@ -36,6 +36,19 @@ pub fn extract_textures(datasets_path: &std::path::Path, output_path: &std::path
     }
 }
 
+pub fn extract_rle_textures(rletextures_path: &std::path::Path, output_path: &std::path::Path) {
+    std::fs::create_dir_all(output_path).unwrap();
+
+    let rletextures = std::fs::read(rletextures_path).unwrap();
+
+    let files = crate::arc::read(&rletextures);
+
+    for (name, bytes) in files {
+        let image = crate::rle_textures::convert(bytes);
+        crate::save_texture(image, &name, output_path, false);
+    }
+}
+
 const THE_SIMS_ALPHA_TEXTURE_IDS: [u32; 785] = [
     1007216883, 1008232004, 1011490186, 1017241056, 1027490000, 1027830898, 1029845720, 1041591381, 10417810,
     1049153561, 1049995869, 1081271696, 1083566872, 109404227, 1100699540, 1103347070, 1108905392, 1113192483,
