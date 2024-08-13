@@ -41,7 +41,7 @@ pub fn extract_rle_textures(rletextures_path: &std::path::Path, output_path: &st
 
     let rletextures = std::fs::read(rletextures_path).unwrap();
 
-    let files = crate::arc::read(&rletextures);
+    let files = crate::arc::read_le(&rletextures);
 
     for (name, _, bytes) in files {
         let image = crate::rle_textures::convert(bytes, false);
