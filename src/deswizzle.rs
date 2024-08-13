@@ -32,12 +32,7 @@ fn deswizzle_xbox_palette_section(
     }
 }
 
-pub fn deswizzle_xbox_palette(
-    bytes: &[u8],
-    width: usize,
-    height: usize,
-    palette: &[u8],
-) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+pub fn deswizzle_xbox_palette(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
     let mut image = image::RgbaImage::new(width as _, height as _);
 
     if width == height {
@@ -87,7 +82,7 @@ fn deswizzle_xbox_rgba_section(
     }
 }
 
-pub fn deswizzle_xbox_rgba(bytes: &[u8], width: usize, height: usize) -> image::ImageBuffer<image::Rgba<u8>, Vec<u8>> {
+pub fn deswizzle_xbox_rgba(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
     let mut image = image::RgbaImage::new(width as _, height as _);
 
     if width == height {
@@ -108,6 +103,58 @@ pub fn deswizzle_xbox_rgba(bytes: &[u8], width: usize, height: usize) -> image::
             let section_bytes = &bytes[i * (width * width) * 4..];
             let section_height_offset = (section_count * width) - ((i + 1) * width);
             deswizzle_xbox_rgba_section(section_bytes, width, &mut image, 0, section_height_offset);
+        }
+    }
+
+    image
+}
+
+fn deswizzle_xbox_rgb5_section(
+    bytes: &[u8],
+    dimensions: usize,
+    output: &mut image::RgbaImage,
+    x_offset: usize,
+    y_offset: usize,
+) {
+    for i in 0..(dimensions * dimensions) {
+        let x = compact(i);
+        let y = compact(i >> 1);
+
+        let bits = u16::from_le_bytes(bytes[i * 2..(i * 2) + 2].try_into().unwrap());
+
+        let r = (((bits & 0b0111_1100_0000_0000) >> 10) << 3) as u8;
+        let g = (((bits & 0b0000_0011_1110_0000) >> 5) << 3) as u8;
+        let b = ((bits & 0b0000_0000_0001_1111) << 3) as u8;
+
+        output.put_pixel(
+            (x + x_offset) as u32,
+            ((dimensions - 1 - y) + y_offset) as u32,
+            image::Rgba([r, g, b, 255]),
+        );
+    }
+}
+
+pub fn deswizzle_xbox_rgb5(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let mut image = image::RgbaImage::new(width as _, height as _);
+
+    if width == height {
+        deswizzle_xbox_rgb5_section(bytes, width, &mut image, 0, 0);
+    }
+
+    if width > height {
+        let section_count = width / height;
+        for i in 0..section_count {
+            let section_bytes = &bytes[i * (height * height) * 2..];
+            deswizzle_xbox_rgb5_section(section_bytes, height, &mut image, i * height, 0);
+        }
+    }
+
+    if height > width {
+        let section_count = height / width;
+        for i in 0..section_count {
+            let section_bytes = &bytes[i * (width * width) * 2..];
+            let section_height_offset = (section_count * width) - ((i + 1) * width);
+            deswizzle_xbox_rgb5_section(section_bytes, width, &mut image, 0, section_height_offset);
         }
     }
 

@@ -3,6 +3,21 @@ mod deswizzle;
 mod rle_textures;
 mod the_sims;
 mod the_sims_bustin_out;
+mod the_urbz;
+
+fn decompress_bc1(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let mut decompressed_pixels = vec![0u8; width * height * 4];
+    texpresso::Format::Bc1.decompress(bytes, width, height, &mut decompressed_pixels);
+    let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
+    image::imageops::flip_vertical(&image)
+}
+
+fn decompress_bc2(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let mut decompressed_pixels = vec![0u8; width * height * 4];
+    texpresso::Format::Bc2.decompress(bytes, width, height, &mut decompressed_pixels);
+    let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
+    image::imageops::flip_vertical(&image)
+}
 
 fn save_texture(image: image::RgbaImage, name: &str, output_path: &std::path::Path, specular: bool) {
     if specular {
@@ -75,11 +90,15 @@ enum CliCommands {
         output_path: std::path::PathBuf,
     },
     TheSimsBustinOut {
-        datasets_path: std::path::PathBuf,
+        textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     TheSimsBustinOutRle {
         rletextures_path: std::path::PathBuf,
+        output_path: std::path::PathBuf,
+    },
+    TheUrbz {
+        textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
 }
@@ -102,16 +121,22 @@ fn main() {
             the_sims::extract_rle_textures(rletextures_path, output_path);
         }
         CliCommands::TheSimsBustinOut {
-            datasets_path,
+            textures_path,
             output_path,
         } => {
-            the_sims_bustin_out::extract_textures(datasets_path, output_path);
+            the_sims_bustin_out::extract_textures(textures_path, output_path);
         }
         CliCommands::TheSimsBustinOutRle {
             rletextures_path,
             output_path,
         } => {
             the_sims_bustin_out::extract_rle_textures(rletextures_path, output_path);
+        }
+        CliCommands::TheUrbz {
+            textures_path,
+            output_path,
+        } => {
+            the_urbz::extract_textures(textures_path, output_path);
         }
     }
 }

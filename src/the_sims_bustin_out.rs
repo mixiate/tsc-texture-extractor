@@ -15,15 +15,9 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
         let palette = &bytes[bytes.len() - 1024..];
         crate::deswizzle::deswizzle_xbox_palette(&bytes[null_position + 21..], width, height, palette)
     } else if bytes[null_position + 1] & 0b0001_0000 > 0 {
-        let mut decompressed_pixels = vec![0u8; width * height * 4];
-        texpresso::Format::Bc2.decompress(&bytes[null_position + 21..], width, height, &mut decompressed_pixels);
-        let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
-        image::imageops::flip_vertical(&image)
+        crate::decompress_bc2(&bytes[null_position + 33..], width, height)
     } else {
-        let mut decompressed_pixels = vec![0u8; width * height * 4];
-        texpresso::Format::Bc1.decompress(&bytes[null_position + 21..], width, height, &mut decompressed_pixels);
-        let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
-        image::imageops::flip_vertical(&image)
+        crate::decompress_bc1(&bytes[null_position + 33..], width, height)
     }
 }
 
