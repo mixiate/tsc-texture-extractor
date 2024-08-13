@@ -4,8 +4,8 @@ pub fn decode_cmpr(bytes: &[u8], width: usize, height: usize) -> image::RgbaImag
     image::imageops::flip_vertical(&image)
 }
 
-pub fn decode_rgb565(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
-    let decompressed_data = gctex::decode(bytes, width as _, height as _, gctex::TextureFormat::RGB565, &[], 0);
+pub fn decode_rgb5a3(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let decompressed_data = gctex::decode(bytes, width as _, height as _, gctex::TextureFormat::RGB5A3, &[], 0);
     let image = image::RgbaImage::from_raw(width as _, height as _, decompressed_data.to_vec()).unwrap();
     image::imageops::flip_vertical(&image)
 }

@@ -34,7 +34,7 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
             image::imageops::flip_vertical(&image)
         }
         0x81 => crate::gamecube::decode_cmpr(&bytes[null_position + 37..], width, height),
-        0x82 => crate::gamecube::decode_rgb565(&bytes[null_position + 37..], width, height),
+        0x82 => crate::gamecube::decode_rgb5a3(&bytes[null_position + 37..], width, height),
         0x85 => crate::gamecube::decode_rgba8(&bytes[null_position + 37..], width, height),
         0x89 => {
             assert!(palette_bit_count == 32 && palette_count == 16);

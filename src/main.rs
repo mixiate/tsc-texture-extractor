@@ -6,6 +6,7 @@ mod the_sims;
 mod the_sims_2;
 mod the_sims_2_castaway;
 mod the_sims_2_pets;
+mod the_sims_3;
 mod the_sims_bustin_out;
 mod the_urbz;
 
@@ -120,6 +121,11 @@ enum CliCommands {
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
+    #[clap(name = "the-sims-3")]
+    TheSims3 {
+        textures_path: std::path::PathBuf,
+        output_path: std::path::PathBuf,
+    },
 }
 
 fn main() {
@@ -174,6 +180,12 @@ fn main() {
             output_path,
         } => {
             the_sims_2_pets::extract_textures(textures_path, output_path, &the_sims_2_castaway::SPECULAR_FILE_NAMES);
+        }
+        CliCommands::TheSims3 {
+            textures_path,
+            output_path,
+        } => {
+            the_sims_3::extract_textures(textures_path, output_path);
         }
     }
 }
