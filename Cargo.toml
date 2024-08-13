@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 clap = { version = "4.5.15", features = ["derive"] }
 image = "0.25.2"
+texpresso = "2.0.1"

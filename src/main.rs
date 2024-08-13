@@ -8,21 +8,28 @@ fn save_texture(image: image::RgbaImage, name: &str, output_path: &std::path::Pa
     if specular {
         let mut diffuse = image::RgbImage::new(image.width(), image.height());
         let mut specular = image::ImageBuffer::<image::Luma<u8>, Vec<u8>>::new(image.width(), image.height());
-        let mut output_specular = false;
+        let mut alpha_0_count = 0;
+        let mut alpha_255_count = 0;
         for y in 0..image.height() {
             for x in 0..image.width() {
                 let pixel = image.get_pixel(x, y);
                 diffuse.put_pixel(x, y, image::Rgb(pixel.0[0..3].try_into().unwrap()));
                 specular.put_pixel(x, y, image::Luma([pixel.0[3]]));
 
-                if pixel.0[3] != 255 {
-                    output_specular = true;
+                if pixel.0[3] == 0 {
+                    alpha_0_count += 1
+                }
+
+                if pixel.0[3] == 255 {
+                    alpha_255_count += 1
                 }
             }
         }
 
+        let pixel_count = image.width() * image.height();
+
         diffuse.save(output_path.join(format!("{}.png", name))).unwrap();
-        if output_specular {
+        if !(alpha_0_count == pixel_count || alpha_255_count == pixel_count) {
             specular.save(output_path.join(format!("{} specular.png", name))).unwrap();
         }
     } else {
@@ -67,6 +74,10 @@ enum CliCommands {
         rletextures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
+    TheSimsBustinOut {
+        datasets_path: std::path::PathBuf,
+        output_path: std::path::PathBuf,
+    },
     TheSimsBustinOutRle {
         rletextures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
@@ -89,6 +100,12 @@ fn main() {
             output_path,
         } => {
             the_sims::extract_rle_textures(rletextures_path, output_path);
+        }
+        CliCommands::TheSimsBustinOut {
+            datasets_path,
+            output_path,
+        } => {
+            the_sims_bustin_out::extract_textures(datasets_path, output_path);
         }
         CliCommands::TheSimsBustinOutRle {
             rletextures_path,

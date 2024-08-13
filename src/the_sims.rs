@@ -43,7 +43,7 @@ pub fn extract_rle_textures(rletextures_path: &std::path::Path, output_path: &st
 
     let files = crate::arc::read(&rletextures);
 
-    for (name, bytes) in files {
+    for (name, _, bytes) in files {
         let image = crate::rle_textures::convert(bytes, false);
         crate::save_texture(image, &name, output_path, false);
     }
