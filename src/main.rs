@@ -2,6 +2,7 @@ mod arc;
 mod deswizzle;
 mod rle_textures;
 mod the_sims;
+mod the_sims_2;
 mod the_sims_bustin_out;
 mod the_urbz;
 
@@ -101,6 +102,11 @@ enum CliCommands {
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
+    #[clap(name = "the-sims-2")]
+    TheSims2 {
+        textures_path: std::path::PathBuf,
+        output_path: std::path::PathBuf,
+    },
 }
 
 fn main() {
@@ -137,6 +143,12 @@ fn main() {
             output_path,
         } => {
             the_urbz::extract_textures(textures_path, output_path);
+        }
+        CliCommands::TheSims2 {
+            textures_path,
+            output_path,
+        } => {
+            the_sims_2::extract_textures(textures_path, output_path);
         }
     }
 }
