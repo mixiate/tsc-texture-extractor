@@ -54,7 +54,7 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     }
 }
 
-pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path::Path, specular_file_names: &[&str]) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let textures = std::fs::read(textures_path).unwrap();
@@ -63,11 +63,11 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
 
     for (name, _, bytes) in files {
         let image = convert(bytes);
-        crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
+        crate::save_texture(image, &name, output_path, specular_file_names.contains(&name.as_str()));
     }
 }
 
-const SPECULAR_FILE_NAMES: [&str; 1151] = [
+pub const SPECULAR_FILE_NAMES: [&str; 1151] = [
     "_garbage",
     "accessorycanofpetfood",
     "accessorycleaningspounge",
