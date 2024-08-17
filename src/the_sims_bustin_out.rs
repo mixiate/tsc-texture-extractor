@@ -2,22 +2,21 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[16 + 4..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
-    let width = usize::from(u16::from_le_bytes(
-        bytes[null_position + 3..null_position + 5].try_into().unwrap(),
-    ));
-    let height = usize::from(u16::from_le_bytes(
-        bytes[null_position + 5..null_position + 7].try_into().unwrap(),
-    ));
+    let bytes = &bytes[null_position..];
 
-    if bytes[null_position + 1] == 0x8C {
-        crate::xbox::decode_rgba8(&bytes[null_position + 21..], width, height)
-    } else if bytes[null_position + 1] & 0b0000_0001 > 0 {
-        let palette = &bytes[bytes.len() - 1024..];
-        crate::xbox::decode_c8(&bytes[null_position + 21..], width, height, palette)
-    } else if bytes[null_position + 1] & 0b0001_0000 > 0 {
-        crate::xbox::decode_bc2(&bytes[null_position + 33..], width, height)
-    } else {
-        crate::xbox::decode_bc1(&bytes[null_position + 33..], width, height)
+    let width = usize::from(u16::from_le_bytes(bytes[3..5].try_into().unwrap()));
+    let height = usize::from(u16::from_le_bytes(bytes[5..7].try_into().unwrap()));
+
+    let texture_type = bytes[1];
+    match texture_type {
+        0x8C => crate::xbox::decode_rgba8(&bytes[21..], width, height),
+        0x8D => {
+            let palette = &bytes[bytes.len() - 1024..];
+            crate::xbox::decode_c8(&bytes[21..], width, height, palette)
+        }
+        0x8E => crate::xbox::decode_bc1(&bytes[21..], width, height),
+        0x90 => crate::xbox::decode_bc2(&bytes[21..], width, height),
+        _ => panic!(),
     }
 }
 
