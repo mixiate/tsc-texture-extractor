@@ -11,7 +11,7 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     let image_bytes = &bytes[null_position + 21..];
     let palette = &bytes[bytes.len() - 1024..];
 
-    crate::deswizzle::decode_palette(image_bytes, width, height, palette)
+    crate::xbox::decode_palette(image_bytes, width, height, palette)
 }
 
 pub fn extract_textures(datasets_path: &std::path::Path, output_path: &std::path::Path) {

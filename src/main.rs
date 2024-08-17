@@ -1,5 +1,5 @@
 mod arc;
-mod deswizzle;
+mod xbox;
 mod gamecube;
 mod rle_textures;
 mod the_sims;
