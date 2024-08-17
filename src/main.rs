@@ -1,6 +1,7 @@
 mod arc;
 mod datasets;
 mod gamecube;
+mod playstation_2;
 mod rle_textures;
 mod the_sims;
 mod the_sims_2;
@@ -86,6 +87,7 @@ struct Cli {
 
 #[derive(Clone, clap::ValueEnum)]
 enum Console {
+    Ps2,
     Gamecube,
     Xbox,
 }
@@ -146,6 +148,7 @@ fn main() {
             datasets_path,
             output_path,
         } => match console {
+            Console::Ps2 => the_sims::extract_playstation_2_textures(datasets_path, output_path),
             Console::Gamecube => the_sims::extract_gamecube_textures(datasets_path, output_path),
             Console::Xbox => the_sims::extract_xbox_textures(datasets_path, output_path),
         },
