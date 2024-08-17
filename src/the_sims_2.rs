@@ -32,9 +32,9 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
 
     let textures = std::fs::read(textures_path).unwrap();
 
-    let files = crate::arc::read_le(&textures);
+    let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
 
-    for (name, _, bytes) in files {
+    for (name, _, bytes) in file_list {
         let image = convert(bytes);
         crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
     }

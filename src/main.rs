@@ -87,8 +87,10 @@ struct Cli {
 
 #[derive(Clone, clap::ValueEnum)]
 enum Console {
-    Ps2,
-    Gamecube,
+    #[clap(name = "ps2")]
+    PlayStation2,
+    #[clap(name = "gamecube")]
+    GameCube,
     Xbox,
 }
 
@@ -101,6 +103,7 @@ enum CliCommands {
         output_path: std::path::PathBuf,
     },
     TheSimsRle {
+        console: Console,
         rletextures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -148,16 +151,19 @@ fn main() {
             datasets_path,
             output_path,
         } => match console {
-            Console::Ps2 => the_sims::extract_playstation_2_textures(datasets_path, output_path),
-            Console::Gamecube => the_sims::extract_gamecube_textures(datasets_path, output_path),
+            Console::PlayStation2 => the_sims::extract_playstation_2_textures(datasets_path, output_path),
+            Console::GameCube => the_sims::extract_gamecube_textures(datasets_path, output_path),
             Console::Xbox => the_sims::extract_xbox_textures(datasets_path, output_path),
         },
         CliCommands::TheSimsRle {
+            console,
             rletextures_path,
             output_path,
-        } => {
-            the_sims::extract_rle_textures(rletextures_path, output_path);
-        }
+        } => match console {
+            Console::PlayStation2 => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
+            Console::GameCube => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Big),
+            Console::Xbox => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
+        },
         CliCommands::TheSimsBustinOut {
             textures_path,
             output_path,

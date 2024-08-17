@@ -26,9 +26,9 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
 
     let textures = std::fs::read(textures_path).unwrap();
 
-    let files = crate::arc::read_le(&textures);
+    let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
 
-    for (name, id, bytes) in files {
+    for (name, id, bytes) in file_list {
         let image = convert(bytes);
         crate::save_texture(image, &name, output_path, !ALPHA_TEXTURE_IDS.contains(&id));
     }
@@ -39,9 +39,9 @@ pub fn extract_rle_textures(rletextures_path: &std::path::Path, output_path: &st
 
     let rletextures = std::fs::read(rletextures_path).unwrap();
 
-    let files = crate::arc::read_le(&rletextures);
+    let file_list = crate::arc::list_files(&rletextures, crate::Endianness::Little);
 
-    for (name, _, bytes) in files {
+    for (name, _, bytes) in file_list {
         let image = crate::rle_textures::convert(bytes, true);
         crate::save_texture(image, &name, output_path, false);
     }
