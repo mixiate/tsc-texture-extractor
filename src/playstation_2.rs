@@ -20,6 +20,23 @@ pub fn decode_rgb5(bytes: &[u8], width: usize, height: usize) -> image::RgbaImag
     image::imageops::flip_vertical(&image)
 }
 
+pub fn decode_rgb8(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let mut image = image::RgbaImage::new(width as _, height as _);
+
+    let mut i = 0;
+    for y in 0..height {
+        for x in 0..width {
+            let r = bytes[i];
+            let g = bytes[i + 1];
+            let b = bytes[i + 2];
+            image.put_pixel(x as u32, y as u32, image::Rgba([r, g, b, 255]));
+            i += 3;
+        }
+    }
+
+    image::imageops::flip_vertical(&image)
+}
+
 pub fn decode_rgba8(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
     let mut image = image::RgbaImage::new(width as _, height as _);
 
