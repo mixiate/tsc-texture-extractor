@@ -50,6 +50,53 @@ pub fn extract_playstation_2_textures(textures_path: &std::path::Path, output_pa
     }
 }
 
+fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
+    let bytes = &bytes[16..];
+    let null_position = bytes.iter().position(|x| *x == 0).unwrap();
+
+    let bytes = &bytes[null_position..];
+
+    let width = usize::from(u16::from_be_bytes(bytes[21..23].try_into().unwrap()));
+    let height = usize::from(u16::from_be_bytes(bytes[23..25].try_into().unwrap()));
+
+    let image_bytes = &bytes[37..];
+
+    let texture_type = bytes[29];
+    match texture_type {
+        0x81 => crate::gamecube::decode_cmpr(image_bytes, width, height),
+        0x82 => crate::gamecube::decode_rgb5a3(image_bytes, width, height),
+        0x85 => crate::gamecube::decode_rgba8(image_bytes, width, height),
+        0x89 | 0x8A => {
+            let palette_count = usize::from(u16::from_be_bytes(bytes[25..27].try_into().unwrap()));
+            match palette_count {
+                16 => {
+                    let palette = &bytes[bytes.len() - 64..];
+                    crate::gamecube::decode_c4(image_bytes, width, height, palette)
+                }
+                256 => {
+                    let palette = &bytes[bytes.len() - 1024..];
+                    crate::gamecube::decode_c8(image_bytes, width, height, palette)
+                }
+                _ => panic!(),
+            }
+        }
+        _ => panic!(),
+    }
+}
+
+pub fn extract_gamecube_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+    std::fs::create_dir_all(output_path).unwrap();
+
+    let textures = std::fs::read(textures_path).unwrap();
+
+    let file_list = crate::arc::list_files(&textures, crate::Endianness::Big);
+
+    for (name, _, bytes) in file_list {
+        let image = convert_gamecube_texture(bytes);
+        crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
+    }
+}
+
 fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[16..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();

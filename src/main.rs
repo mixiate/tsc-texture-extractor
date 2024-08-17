@@ -204,7 +204,7 @@ fn main() {
             output_path,
         } => match console {
             Console::PlayStation2 => the_sims_2::extract_playstation_2_textures(textures_path, output_path),
-            Console::GameCube => panic!(),
+            Console::GameCube => the_sims_2::extract_gamecube_textures(textures_path, output_path),
             Console::Xbox => the_sims_2::extract_xbox_textures(textures_path, output_path),
         },
         CliCommands::TheSims2Pets {
