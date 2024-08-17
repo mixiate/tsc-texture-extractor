@@ -18,12 +18,12 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     } else if flags & 0b1000_0000 == 0 && flags & 0b0100_0000 == 0 && flags2 & 0b0000_0001 > 0 {
         crate::decompress_bc2(&bytes[null_position + 37..], width, height)
     } else if flags & 0b1000_0000 > 0 && flags3 & 0b0001_0000 != 0 {
-        crate::deswizzle::deswizzle_xbox_rgb5(&bytes[null_position + 33..], width, height)
+        crate::deswizzle::decode_rgb5(&bytes[null_position + 33..], width, height)
     } else if flags & 0b1000_0000 > 0 && flags2 & 0b0000_0001 != 0 {
         let palette = &bytes[bytes.len() - 1024..];
-        crate::deswizzle::deswizzle_xbox_palette(&bytes[null_position + 37..], width, height, palette)
+        crate::deswizzle::decode_palette(&bytes[null_position + 37..], width, height, palette)
     } else {
-        crate::deswizzle::deswizzle_xbox_rgba(&bytes[null_position + 37..], width, height)
+        crate::deswizzle::decode_rgba(&bytes[null_position + 37..], width, height)
     }
 }
 
