@@ -1,4 +1,17 @@
-fn convert(bytes: &[u8]) -> image::RgbaImage {
+pub fn extract_playstation_2_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+    std::fs::create_dir_all(output_path).unwrap();
+
+    let textures = std::fs::read(textures_path).unwrap();
+
+    let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
+
+    for (name, id, bytes) in file_list {
+        let image = crate::the_sims::convert_playstation_2_texture(&bytes[20..]);
+        crate::save_texture(image, &name, output_path, !ALPHA_TEXTURE_IDS.contains(&id));
+    }
+}
+
+fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[16 + 4..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
@@ -20,7 +33,7 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     }
 }
 
-pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_xbox_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let textures = std::fs::read(textures_path).unwrap();
@@ -28,7 +41,7 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
     let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
 
     for (name, id, bytes) in file_list {
-        let image = convert(bytes);
+        let image = convert_xbox_texture(bytes);
         crate::save_texture(image, &name, output_path, !ALPHA_TEXTURE_IDS.contains(&id));
     }
 }

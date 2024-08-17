@@ -108,6 +108,7 @@ enum CliCommands {
         output_path: std::path::PathBuf,
     },
     TheSimsBustinOut {
+        console: Console,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -166,11 +167,14 @@ fn main() {
             Console::Xbox => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
         },
         CliCommands::TheSimsBustinOut {
+            console,
             textures_path,
             output_path,
-        } => {
-            the_sims_bustin_out::extract_textures(textures_path, output_path);
-        }
+        } => match console {
+            Console::PlayStation2 => the_sims_bustin_out::extract_playstation_2_textures(textures_path, output_path),
+            Console::GameCube => panic!(),
+            Console::Xbox => the_sims_bustin_out::extract_xbox_textures(textures_path, output_path),
+        },
         CliCommands::TheSimsBustinOutRle {
             console,
             rletextures_path,

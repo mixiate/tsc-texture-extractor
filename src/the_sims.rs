@@ -1,4 +1,4 @@
-fn convert_playstation_2_texture(bytes: &[u8]) -> image::RgbaImage {
+pub fn convert_playstation_2_texture(bytes: &[u8]) -> image::RgbaImage {
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
     let bytes = &bytes[null_position..];
