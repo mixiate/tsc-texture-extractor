@@ -1,4 +1,4 @@
-fn convert_playstation_2_texture(bytes: &[u8]) -> image::RgbaImage {
+pub fn convert_playstation_2_texture(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[16..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
@@ -37,7 +37,11 @@ fn convert_playstation_2_texture(bytes: &[u8]) -> image::RgbaImage {
     }
 }
 
-pub fn extract_playstation_2_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_playstation_2_textures(
+    textures_path: &std::path::Path,
+    output_path: &std::path::Path,
+    specular_file_names: &[&str],
+) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let textures = std::fs::read(textures_path).unwrap();
@@ -46,11 +50,11 @@ pub fn extract_playstation_2_textures(textures_path: &std::path::Path, output_pa
 
     for (name, _, bytes) in file_list {
         let image = convert_playstation_2_texture(bytes);
-        crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
+        crate::save_texture(image, &name, output_path, specular_file_names.contains(&name.as_str()));
     }
 }
 
-fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
+pub fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[16..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
@@ -63,6 +67,13 @@ fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
 
     let texture_type = bytes[29];
     match texture_type {
+        0x1 => {
+            let bit_count = bytes[31];
+            match bit_count {
+                24 => crate::playstation_2::decode_rgb8(image_bytes, width, height),
+                _ => panic!(),
+            }
+        }
         0x81 => crate::gamecube::decode_cmpr(image_bytes, width, height),
         0x82 => crate::gamecube::decode_rgb5a3(image_bytes, width, height),
         0x85 => crate::gamecube::decode_rgba8(image_bytes, width, height),
@@ -84,7 +95,11 @@ fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
     }
 }
 
-pub fn extract_gamecube_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_gamecube_textures(
+    textures_path: &std::path::Path,
+    output_path: &std::path::Path,
+    specular_file_names: &[&str],
+) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let textures = std::fs::read(textures_path).unwrap();
@@ -93,7 +108,7 @@ pub fn extract_gamecube_textures(textures_path: &std::path::Path, output_path: &
 
     for (name, _, bytes) in file_list {
         let image = convert_gamecube_texture(bytes);
-        crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
+        crate::save_texture(image, &name, output_path, specular_file_names.contains(&name.as_str()));
     }
 }
 
@@ -139,7 +154,7 @@ pub fn extract_xbox_textures(textures_path: &std::path::Path, output_path: &std:
     }
 }
 
-const SPECULAR_FILE_NAMES: [&str; 1159] = [
+pub const SPECULAR_FILE_NAMES: [&str; 1159] = [
     "_garbage",
     "af_bc_meshstonecuff_texture1",
     "af_bc_watch_ovaldiamond_texture1",

@@ -86,7 +86,7 @@ struct Cli {
 }
 
 #[derive(Clone, clap::ValueEnum)]
-enum Console {
+enum Console0 {
     #[clap(name = "ps2")]
     PlayStation2,
     #[clap(name = "gamecube")]
@@ -94,42 +94,52 @@ enum Console {
     Xbox,
 }
 
+#[derive(Clone, clap::ValueEnum)]
+enum Console1 {
+    #[clap(name = "ps2")]
+    PlayStation2,
+    #[clap(name = "gamecube")]
+    GameCube,
+    Wii,
+}
+
 #[allow(clippy::enum_variant_names)]
 #[derive(clap::Subcommand)]
 enum CliCommands {
     TheSims {
-        console: Console,
+        console: Console0,
         datasets_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     TheSimsRle {
-        console: Console,
+        console: Console0,
         rletextures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     TheSimsBustinOut {
-        console: Console,
+        console: Console0,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     TheSimsBustinOutRle {
-        console: Console,
+        console: Console0,
         rletextures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     TheUrbz {
-        console: Console,
+        console: Console0,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     #[clap(name = "the-sims-2")]
     TheSims2 {
-        console: Console,
+        console: Console0,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
     #[clap(name = "the-sims-2-pets")]
     TheSims2Pets {
+        console: Console1,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -155,37 +165,37 @@ fn main() {
             datasets_path,
             output_path,
         } => match console {
-            Console::PlayStation2 => the_sims::extract_playstation_2_textures(datasets_path, output_path),
-            Console::GameCube => the_sims::extract_gamecube_textures(datasets_path, output_path),
-            Console::Xbox => the_sims::extract_xbox_textures(datasets_path, output_path),
+            Console0::PlayStation2 => the_sims::extract_playstation_2_textures(datasets_path, output_path),
+            Console0::GameCube => the_sims::extract_gamecube_textures(datasets_path, output_path),
+            Console0::Xbox => the_sims::extract_xbox_textures(datasets_path, output_path),
         },
         CliCommands::TheSimsRle {
             console,
             rletextures_path,
             output_path,
         } => match console {
-            Console::PlayStation2 => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
-            Console::GameCube => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Big),
-            Console::Xbox => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
+            Console0::PlayStation2 => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
+            Console0::GameCube => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Big),
+            Console0::Xbox => the_sims::extract_rle_textures(rletextures_path, output_path, Endianness::Little),
         },
         CliCommands::TheSimsBustinOut {
             console,
             textures_path,
             output_path,
         } => match console {
-            Console::PlayStation2 => the_sims_bustin_out::extract_playstation_2_textures(textures_path, output_path),
-            Console::GameCube => the_sims_bustin_out::extract_gamecube_textures(textures_path, output_path),
-            Console::Xbox => the_sims_bustin_out::extract_xbox_textures(textures_path, output_path),
+            Console0::PlayStation2 => the_sims_bustin_out::extract_playstation_2_textures(textures_path, output_path),
+            Console0::GameCube => the_sims_bustin_out::extract_gamecube_textures(textures_path, output_path),
+            Console0::Xbox => the_sims_bustin_out::extract_xbox_textures(textures_path, output_path),
         },
         CliCommands::TheSimsBustinOutRle {
             console,
             rletextures_path,
             output_path,
         } => match console {
-            Console::PlayStation2 | Console::Xbox => {
+            Console0::PlayStation2 | Console0::Xbox => {
                 the_sims_bustin_out::extract_rle_textures(rletextures_path, output_path, Endianness::Little)
             }
-            Console::GameCube => {
+            Console0::GameCube => {
                 the_sims_bustin_out::extract_rle_textures(rletextures_path, output_path, Endianness::Big)
             }
         },
@@ -194,30 +204,46 @@ fn main() {
             textures_path,
             output_path,
         } => match console {
-            Console::PlayStation2 => the_urbz::extract_playstation_2_textures(textures_path, output_path),
-            Console::GameCube => the_urbz::extract_gamecube_textures(textures_path, output_path),
-            Console::Xbox => the_urbz::extract_xbox_textures(textures_path, output_path),
+            Console0::PlayStation2 => the_urbz::extract_playstation_2_textures(textures_path, output_path),
+            Console0::GameCube => the_urbz::extract_gamecube_textures(textures_path, output_path),
+            Console0::Xbox => the_urbz::extract_xbox_textures(textures_path, output_path),
         },
         CliCommands::TheSims2 {
             console,
             textures_path,
             output_path,
         } => match console {
-            Console::PlayStation2 => the_sims_2::extract_playstation_2_textures(textures_path, output_path),
-            Console::GameCube => the_sims_2::extract_gamecube_textures(textures_path, output_path),
-            Console::Xbox => the_sims_2::extract_xbox_textures(textures_path, output_path),
+            Console0::PlayStation2 => {
+                the_sims_2::extract_playstation_2_textures(textures_path, output_path, &the_sims_2::SPECULAR_FILE_NAMES)
+            }
+            Console0::GameCube => {
+                the_sims_2::extract_gamecube_textures(textures_path, output_path, &the_sims_2::SPECULAR_FILE_NAMES)
+            }
+            Console0::Xbox => the_sims_2::extract_xbox_textures(textures_path, output_path),
         },
         CliCommands::TheSims2Pets {
+            console,
             textures_path,
             output_path,
-        } => {
-            the_sims_2_pets::extract_textures(textures_path, output_path, &the_sims_2_pets::SPECULAR_FILE_NAMES);
-        }
+        } => match console {
+            Console1::PlayStation2 => the_sims_2::extract_playstation_2_textures(
+                textures_path,
+                output_path,
+                &the_sims_2_pets::SPECULAR_FILE_NAMES,
+            ),
+            Console1::GameCube | Console1::Wii => {
+                the_sims_2::extract_gamecube_textures(textures_path, output_path, &the_sims_2_pets::SPECULAR_FILE_NAMES)
+            }
+        },
         CliCommands::TheSims2Castaway {
             textures_path,
             output_path,
         } => {
-            the_sims_2_pets::extract_textures(textures_path, output_path, &the_sims_2_castaway::SPECULAR_FILE_NAMES);
+            the_sims_2::extract_gamecube_textures(
+                textures_path,
+                output_path,
+                &the_sims_2_castaway::SPECULAR_FILE_NAMES,
+            );
         }
         CliCommands::TheSims3 {
             textures_path,

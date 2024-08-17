@@ -2,10 +2,10 @@
 
 ### Supported Games
 - The Sims (PlayStation 2, GameCube, Xbox)
-- The Sims Bustin' Out (Xbox)
-- The Urbz (Xbox)
-- The Sims 2 (Xbox)
-- The Sims 2 Pets (Wii)
+- The Sims Bustin' Out (PlayStation 2, GameCube, Xbox)
+- The Urbz (PlayStation 2, GameCube, Xbox)
+- The Sims 2 (PlayStation 2, GameCube, Xbox)
+- The Sims 2 Pets (PlayStation 2, GameCube, Wii)
 - The Sims 2 Castaway (Wii)
 - The Sims 3 (Wii)
 
@@ -18,19 +18,19 @@ tsc-texture-extractor the-sims ps2/gamecube/xbox "path/to/datasets.arc" "path/to
 tsc-texture-extractor the-sims-rle ps2/gamecube/xbox "path/to/rletextu.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-sims-bustin-out "path/to/textures.arc" "path/to/output-directory"
+tsc-texture-extractor the-sims-bustin-out ps2/gamecube/xbox "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-sims-bustin-out-rle "path/to/rletextu.arc" "path/to/output-directory"
+tsc-texture-extractor the-sims-bustin-out-rle ps2/gamecube/xbox "path/to/rletextu.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-urbz "path/to/textures.arc" "path/to/output-directory"
+tsc-texture-extractor the-urbz ps2/gamecube/xbox "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-sims-2 "path/to/textures.arc" "path/to/output-directory"
+tsc-texture-extractor the-sims-2 ps2/gamecube/xbox "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-sims-2-pets "path/to/textures.arc" "path/to/output-directory"
+tsc-texture-extractor the-sims-2-pets ps2/gamecube/wii "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
 tsc-texture-extractor the-sims-2-castaway "path/to/textures.arc" "path/to/output-directory"
