@@ -124,6 +124,7 @@ enum CliCommands {
     },
     #[clap(name = "the-sims-2")]
     TheSims2 {
+        console: Console,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -198,11 +199,14 @@ fn main() {
             Console::Xbox => the_urbz::extract_xbox_textures(textures_path, output_path),
         },
         CliCommands::TheSims2 {
+            console,
             textures_path,
             output_path,
-        } => {
-            the_sims_2::extract_textures(textures_path, output_path);
-        }
+        } => match console {
+            Console::PlayStation2 => the_sims_2::extract_playstation_2_textures(textures_path, output_path),
+            Console::GameCube => panic!(),
+            Console::Xbox => the_sims_2::extract_xbox_textures(textures_path, output_path),
+        },
         CliCommands::TheSims2Pets {
             textures_path,
             output_path,

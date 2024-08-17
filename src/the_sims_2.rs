@@ -1,4 +1,56 @@
-fn convert(bytes: &[u8]) -> image::RgbaImage {
+fn convert_playstation_2_texture(bytes: &[u8]) -> image::RgbaImage {
+    let bytes = &bytes[16..];
+    let null_position = bytes.iter().position(|x| *x == 0).unwrap();
+
+    let bytes = &bytes[null_position..];
+
+    let width = usize::from(u16::from_le_bytes(bytes[21..23].try_into().unwrap()));
+    let height = usize::from(u16::from_le_bytes(bytes[23..25].try_into().unwrap()));
+
+    let image_bytes = &bytes[37..];
+
+    let texture_type = bytes[30];
+    match texture_type {
+        0 => {
+            let bit_count = bytes[31];
+            match bit_count {
+                16 => crate::playstation_2::decode_rgb5(image_bytes, width, height),
+                32 => crate::playstation_2::decode_rgba8(image_bytes, width, height),
+                _ => panic!(),
+            }
+        }
+        2 => {
+            let palette_count = usize::from(u16::from_le_bytes(bytes[25..27].try_into().unwrap()));
+            match palette_count {
+                16 => {
+                    let palette = &bytes[bytes.len() - 64..];
+                    crate::playstation_2::decode_c4(image_bytes, width, height, palette)
+                }
+                256 => {
+                    let palette = &bytes[bytes.len() - 1024..];
+                    crate::playstation_2::decode_c8(image_bytes, width, height, palette)
+                }
+                _ => panic!(),
+            }
+        }
+        _ => panic!(),
+    }
+}
+
+pub fn extract_playstation_2_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+    std::fs::create_dir_all(output_path).unwrap();
+
+    let textures = std::fs::read(textures_path).unwrap();
+
+    let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
+
+    for (name, _, bytes) in file_list {
+        let image = convert_playstation_2_texture(bytes);
+        crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
+    }
+}
+
+fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[16..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
@@ -27,7 +79,7 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     }
 }
 
-pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_xbox_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let textures = std::fs::read(textures_path).unwrap();
@@ -35,7 +87,7 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
     let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
 
     for (name, _, bytes) in file_list {
-        let image = convert(bytes);
+        let image = convert_xbox_texture(bytes);
         crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
     }
 }
