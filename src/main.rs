@@ -110,6 +110,11 @@ enum Console2 {
     Wii,
 }
 
+#[derive(Clone, clap::ValueEnum)]
+enum Console3 {
+    Wii,
+}
+
 #[allow(clippy::enum_variant_names)]
 #[derive(clap::Subcommand)]
 enum CliCommands {
@@ -158,6 +163,7 @@ enum CliCommands {
     },
     #[clap(name = "the-sims-3")]
     TheSims3 {
+        console: Console3,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -260,10 +266,11 @@ fn main() {
             ),
         },
         CliCommands::TheSims3 {
+            console,
             textures_path,
             output_path,
-        } => {
-            the_sims_3::extract_textures(textures_path, output_path);
-        }
+        } => match console {
+            Console3::Wii => the_sims_3::extract_textures(textures_path, output_path),
+        },
     }
 }

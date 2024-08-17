@@ -36,5 +36,6 @@ tsc-texture-extractor the-sims-2-pets ps2/gamecube/wii "path/to/textures.arc" "p
 tsc-texture-extractor the-sims-2-castaway ps2/wii "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-sims-3 "path/to/textures.arc" "path/to/output-directory"
+tsc-texture-extractor the-sims-3 wii "path/to/textures.arc" "path/to/output-directory"
 ```
+- The Xbox and Wii versions are recommended, as they have higher resolution textures.
