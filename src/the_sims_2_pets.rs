@@ -41,14 +41,14 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
 
             let palette = &bytes[bytes.len() - palette_length..];
 
-            crate::gamecube::decode_i4(&bytes[null_position + 37..], width, height, palette)
+            crate::gamecube::decode_c4(&bytes[null_position + 37..], width, height, palette)
         }
         0x8a => {
             assert!(palette_bit_count == 32 && palette_count == 256);
 
             let palette = &bytes[bytes.len() - palette_length..];
 
-            crate::gamecube::decode_i8(&bytes[null_position + 37..], width, height, palette)
+            crate::gamecube::decode_c8(&bytes[null_position + 37..], width, height, palette)
         }
         _ => panic!(),
     }

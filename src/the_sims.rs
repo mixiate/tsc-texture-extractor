@@ -60,11 +60,11 @@ fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
             match palette_count {
                 16 => {
                     let palette = &bytes[bytes.len() - 64..];
-                    crate::gamecube::decode_i4(image_bytes, width, height, palette)
+                    crate::gamecube::decode_c4(image_bytes, width, height, palette)
                 }
                 256 => {
                     let palette = &bytes[bytes.len() - 1024..];
-                    crate::gamecube::decode_i8(image_bytes, width, height, palette)
+                    crate::gamecube::decode_c8(image_bytes, width, height, palette)
                 }
                 _ => panic!(),
             }

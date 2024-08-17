@@ -17,7 +17,7 @@ pub fn decode_rgba8(bytes: &[u8], width: usize, height: usize) -> image::RgbaIma
     image::imageops::flip_vertical(&image)
 }
 
-pub fn decode_i4(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
+pub fn decode_c4(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
     let decompressed_data = gctex::decode(bytes, width as _, height as _, gctex::TextureFormat::I4, &[], 0);
 
     let mut deswizzled_palette = Vec::new();
@@ -40,7 +40,7 @@ pub fn decode_i4(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> i
     image::imageops::flip_vertical(&image)
 }
 
-pub fn decode_i8(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
+pub fn decode_c8(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
     let mut decompressed_data = gctex::decode(bytes, width as _, height as _, gctex::TextureFormat::I8, &[], 1);
 
     for a in decompressed_data[3..].iter_mut().step_by(4) {
