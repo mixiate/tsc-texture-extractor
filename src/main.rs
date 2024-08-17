@@ -118,6 +118,7 @@ enum CliCommands {
         output_path: std::path::PathBuf,
     },
     TheUrbz {
+        console: Console,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -188,11 +189,14 @@ fn main() {
             }
         },
         CliCommands::TheUrbz {
+            console,
             textures_path,
             output_path,
-        } => {
-            the_urbz::extract_xbox_textures(textures_path, output_path);
-        }
+        } => match console {
+            Console::PlayStation2 => the_urbz::extract_playstation_2_textures(textures_path, output_path),
+            Console::GameCube => panic!(),
+            Console::Xbox => the_urbz::extract_xbox_textures(textures_path, output_path),
+        },
         CliCommands::TheSims2 {
             textures_path,
             output_path,
