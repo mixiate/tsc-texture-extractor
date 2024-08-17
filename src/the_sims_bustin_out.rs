@@ -15,9 +15,9 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
         let palette = &bytes[bytes.len() - 1024..];
         crate::xbox::decode_palette(&bytes[null_position + 21..], width, height, palette)
     } else if bytes[null_position + 1] & 0b0001_0000 > 0 {
-        crate::decompress_bc2(&bytes[null_position + 33..], width, height)
+        crate::xbox::decode_bc2(&bytes[null_position + 33..], width, height)
     } else {
-        crate::decompress_bc1(&bytes[null_position + 33..], width, height)
+        crate::xbox::decode_bc1(&bytes[null_position + 33..], width, height)
     }
 }
 

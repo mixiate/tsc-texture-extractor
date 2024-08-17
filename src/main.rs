@@ -10,20 +10,6 @@ mod the_sims_3;
 mod the_sims_bustin_out;
 mod the_urbz;
 
-fn decompress_bc1(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
-    let mut decompressed_pixels = vec![0u8; width * height * 4];
-    texpresso::Format::Bc1.decompress(bytes, width, height, &mut decompressed_pixels);
-    let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
-    image::imageops::flip_vertical(&image)
-}
-
-fn decompress_bc2(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
-    let mut decompressed_pixels = vec![0u8; width * height * 4];
-    texpresso::Format::Bc2.decompress(bytes, width, height, &mut decompressed_pixels);
-    let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
-    image::imageops::flip_vertical(&image)
-}
-
 fn save_texture(image: image::RgbaImage, name: &str, output_path: &std::path::Path, specular: bool) {
     if specular {
         let mut diffuse = image::RgbImage::new(image.width(), image.height());

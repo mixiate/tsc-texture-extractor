@@ -148,3 +148,17 @@ pub fn decode_rgb5(bytes: &[u8], width: usize, height: usize) -> image::RgbaImag
 
     image
 }
+
+pub fn decode_bc1(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let mut decompressed_pixels = vec![0u8; width * height * 4];
+    texpresso::Format::Bc1.decompress(bytes, width, height, &mut decompressed_pixels);
+    let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
+    image::imageops::flip_vertical(&image)
+}
+
+pub fn decode_bc2(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+    let mut decompressed_pixels = vec![0u8; width * height * 4];
+    texpresso::Format::Bc2.decompress(bytes, width, height, &mut decompressed_pixels);
+    let image = image::RgbaImage::from_raw(width as u32, height as u32, decompressed_pixels).unwrap();
+    image::imageops::flip_vertical(&image)
+}

@@ -14,9 +14,9 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     let flags3 = bytes[null_position + 27];
 
     if flags & 0b1000_0000 == 0 && flags2 & 0b0000_0001 == 0 {
-        crate::decompress_bc1(&bytes[null_position + 33..], width, height)
+        crate::xbox::decode_bc1(&bytes[null_position + 33..], width, height)
     } else if flags & 0b1000_0000 == 0 && flags & 0b0100_0000 == 0 && flags2 & 0b0000_0001 > 0 {
-        crate::decompress_bc2(&bytes[null_position + 33..], width, height)
+        crate::xbox::decode_bc2(&bytes[null_position + 33..], width, height)
     } else if flags & 0b1000_0000 > 0 && flags3 & 0b0001_0000 != 0 {
         crate::xbox::decode_rgb5(&bytes[null_position + 33..], width, height)
     } else if flags & 0b1000_0000 > 0 && flags2 & 0b0000_0001 != 0 {
