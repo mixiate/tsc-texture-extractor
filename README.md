@@ -6,7 +6,7 @@
 - The Urbz (PlayStation 2, GameCube, Xbox)
 - The Sims 2 (PlayStation 2, GameCube, Xbox)
 - The Sims 2 Pets (PlayStation 2, GameCube, Wii)
-- The Sims 2 Castaway (Wii)
+- The Sims 2 Castaway (PlayStation 2, Wii)
 - The Sims 3 (Wii)
 
 ### How To Use
@@ -33,9 +33,8 @@ tsc-texture-extractor the-sims-2 ps2/gamecube/xbox "path/to/textures.arc" "path/
 tsc-texture-extractor the-sims-2-pets ps2/gamecube/wii "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
-tsc-texture-extractor the-sims-2-castaway "path/to/textures.arc" "path/to/output-directory"
+tsc-texture-extractor the-sims-2-castaway ps2/wii "path/to/textures.arc" "path/to/output-directory"
 ```
 ```
 tsc-texture-extractor the-sims-3 "path/to/textures.arc" "path/to/output-directory"
 ```
-- Only files from the supported versions above will work!

@@ -103,6 +103,13 @@ enum Console1 {
     Wii,
 }
 
+#[derive(Clone, clap::ValueEnum)]
+enum Console2 {
+    #[clap(name = "ps2")]
+    PlayStation2,
+    Wii,
+}
+
 #[allow(clippy::enum_variant_names)]
 #[derive(clap::Subcommand)]
 enum CliCommands {
@@ -145,6 +152,7 @@ enum CliCommands {
     },
     #[clap(name = "the-sims-2-castaway")]
     TheSims2Castaway {
+        console: Console2,
         textures_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -236,15 +244,21 @@ fn main() {
             }
         },
         CliCommands::TheSims2Castaway {
+            console,
             textures_path,
             output_path,
-        } => {
-            the_sims_2::extract_gamecube_textures(
+        } => match console {
+            Console2::PlayStation2 => the_sims_2::extract_playstation_2_textures(
                 textures_path,
                 output_path,
                 &the_sims_2_castaway::SPECULAR_FILE_NAMES,
-            );
-        }
+            ),
+            Console2::Wii => the_sims_2::extract_gamecube_textures(
+                textures_path,
+                output_path,
+                &the_sims_2_castaway::SPECULAR_FILE_NAMES,
+            ),
+        },
         CliCommands::TheSims3 {
             textures_path,
             output_path,
