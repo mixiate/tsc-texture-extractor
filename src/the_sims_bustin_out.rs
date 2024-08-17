@@ -33,12 +33,16 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
     }
 }
 
-pub fn extract_rle_textures(rletextures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_rle_textures(
+    rletextures_path: &std::path::Path,
+    output_path: &std::path::Path,
+    endianness: crate::Endianness,
+) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let rletextures = std::fs::read(rletextures_path).unwrap();
 
-    let file_list = crate::arc::list_files(&rletextures, crate::Endianness::Little);
+    let file_list = crate::arc::list_files(&rletextures, endianness);
 
     for (name, _, bytes) in file_list {
         let image = crate::rle_textures::convert(bytes, true);
