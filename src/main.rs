@@ -1,5 +1,5 @@
 mod arc;
-mod xbox;
+mod datasets;
 mod gamecube;
 mod rle_textures;
 mod the_sims;
@@ -9,6 +9,21 @@ mod the_sims_2_pets;
 mod the_sims_3;
 mod the_sims_bustin_out;
 mod the_urbz;
+mod xbox;
+
+pub enum Endianness {
+    Little,
+    Big,
+}
+
+impl Endianness {
+    pub fn u32_from_bytes(&self, bytes: [u8; 4]) -> u32 {
+        match self {
+            Endianness::Little => u32::from_le_bytes(bytes),
+            Endianness::Big => u32::from_be_bytes(bytes),
+        }
+    }
+}
 
 fn save_texture(image: image::RgbaImage, name: &str, output_path: &std::path::Path, specular: bool) {
     if specular {
@@ -69,10 +84,17 @@ struct Cli {
     command: CliCommands,
 }
 
+#[derive(Clone, clap::ValueEnum)]
+enum Console {
+    Gamecube,
+    Xbox,
+}
+
 #[allow(clippy::enum_variant_names)]
 #[derive(clap::Subcommand)]
 enum CliCommands {
     TheSims {
+        console: Console,
         datasets_path: std::path::PathBuf,
         output_path: std::path::PathBuf,
     },
@@ -120,11 +142,13 @@ fn main() {
 
     match &cli.command {
         CliCommands::TheSims {
+            console,
             datasets_path,
             output_path,
-        } => {
-            the_sims::extract_textures(datasets_path, output_path);
-        }
+        } => match console {
+            Console::Gamecube => the_sims::extract_gamecube_textures(datasets_path, output_path),
+            Console::Xbox => the_sims::extract_xbox_textures(datasets_path, output_path),
+        },
         CliCommands::TheSimsRle {
             rletextures_path,
             output_path,

@@ -1,4 +1,48 @@
-fn convert(bytes: &[u8]) -> image::RgbaImage {
+fn convert_gamecube_texture(bytes: &[u8]) -> image::RgbaImage {
+    let null_position = bytes.iter().position(|x| *x == 0).unwrap();
+
+    let bytes = &bytes[null_position..];
+
+    let width = usize::from(u16::from_be_bytes(bytes[3..5].try_into().unwrap()));
+    let height = usize::from(u16::from_be_bytes(bytes[5..7].try_into().unwrap()));
+
+    let image_bytes = &bytes[21..];
+
+    let texture_type = bytes[7];
+    match texture_type {
+        0 => crate::gamecube::decode_cmpr(image_bytes, width, height),
+        2 => {
+            let palette_count = usize::from(u16::from_be_bytes(bytes[9..11].try_into().unwrap()));
+            match palette_count {
+                16 => {
+                    let palette = &bytes[bytes.len() - 64..];
+                    crate::gamecube::decode_i4(image_bytes, width, height, palette)
+                }
+                256 => {
+                    let palette = &bytes[bytes.len() - 1024..];
+                    crate::gamecube::decode_i8(image_bytes, width, height, palette)
+                }
+                _ => panic!(),
+            }
+        }
+        _ => panic!(),
+    }
+}
+
+pub fn extract_gamecube_textures(datasets_path: &std::path::Path, output_path: &std::path::Path) {
+    std::fs::create_dir_all(output_path).unwrap();
+
+    let datasets = std::fs::read(datasets_path).unwrap();
+
+    let file_list = crate::datasets::list_textures(&datasets, crate::Endianness::Big);
+
+    for (name, id, bytes) in file_list {
+        let image = convert_gamecube_texture(bytes);
+        crate::save_texture(image, &name, output_path, !THE_SIMS_ALPHA_TEXTURE_IDS.contains(&id));
+    }
+}
+
+fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
     let width = usize::from(u16::from_le_bytes(
@@ -14,25 +58,16 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     crate::xbox::decode_palette(image_bytes, width, height, palette)
 }
 
-pub fn extract_textures(datasets_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_xbox_textures(datasets_path: &std::path::Path, output_path: &std::path::Path) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let datasets = std::fs::read(datasets_path).unwrap();
 
-    let identifier = b"TXFL";
-    for (position, window) in datasets.windows(identifier.len()).enumerate() {
-        if window == identifier {
-            let file_id = u32::from_le_bytes(datasets[position - 12..position - 8].try_into().unwrap());
-            let file_size = u32::from_le_bytes(datasets[position - 8..position - 4].try_into().unwrap()) as usize;
-            let file_bytes = &datasets[position..position + file_size];
+    let file_list = crate::datasets::list_textures(&datasets, crate::Endianness::Little);
 
-            let null_position = file_bytes[4..].iter().position(|x| *x == 0).unwrap();
-            let name = std::str::from_utf8(&file_bytes[4..4 + null_position]).unwrap();
-
-            let image = convert(file_bytes);
-
-            crate::save_texture(image, name, output_path, !THE_SIMS_ALPHA_TEXTURE_IDS.contains(&file_id));
-        }
+    for (name, id, bytes) in file_list {
+        let image = convert_xbox_texture(bytes);
+        crate::save_texture(image, &name, output_path, !THE_SIMS_ALPHA_TEXTURE_IDS.contains(&id));
     }
 }
 
@@ -41,9 +76,9 @@ pub fn extract_rle_textures(rletextures_path: &std::path::Path, output_path: &st
 
     let rletextures = std::fs::read(rletextures_path).unwrap();
 
-    let files = crate::arc::read_le(&rletextures);
+    let file_list = crate::arc::read_le(&rletextures);
 
-    for (name, _, bytes) in files {
+    for (name, _, bytes) in file_list {
         let image = crate::rle_textures::convert(bytes, false);
         crate::save_texture(image, &name, output_path, false);
     }
