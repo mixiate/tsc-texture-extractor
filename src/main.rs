@@ -191,7 +191,7 @@ fn main() {
             textures_path,
             output_path,
         } => {
-            the_urbz::extract_textures(textures_path, output_path);
+            the_urbz::extract_xbox_textures(textures_path, output_path);
         }
         CliCommands::TheSims2 {
             textures_path,

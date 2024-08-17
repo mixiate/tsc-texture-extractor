@@ -1,33 +1,27 @@
-fn convert(bytes: &[u8]) -> image::RgbaImage {
+fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
     let bytes = &bytes[12..];
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
-    let width = usize::from(u16::from_le_bytes(
-        bytes[null_position + 17..null_position + 19].try_into().unwrap(),
-    ));
-    let height = usize::from(u16::from_le_bytes(
-        bytes[null_position + 19..null_position + 21].try_into().unwrap(),
-    ));
+    let bytes = &bytes[null_position..];
 
-    let flags = bytes[null_position + 9];
-    let flags2 = bytes[null_position + 25];
-    let flags3 = bytes[null_position + 27];
+    let width = usize::from(u16::from_le_bytes(bytes[17..19].try_into().unwrap()));
+    let height = usize::from(u16::from_le_bytes(bytes[19..21].try_into().unwrap()));
 
-    if flags & 0b1000_0000 == 0 && flags2 & 0b0000_0001 == 0 {
-        crate::xbox::decode_bc1(&bytes[null_position + 33..], width, height)
-    } else if flags & 0b1000_0000 == 0 && flags & 0b0100_0000 == 0 && flags2 & 0b0000_0001 > 0 {
-        crate::xbox::decode_bc2(&bytes[null_position + 33..], width, height)
-    } else if flags & 0b1000_0000 > 0 && flags3 & 0b0001_0000 != 0 {
-        crate::xbox::decode_rgb5(&bytes[null_position + 33..], width, height)
-    } else if flags & 0b1000_0000 > 0 && flags2 & 0b0000_0001 != 0 {
-        let palette = &bytes[bytes.len() - 1024..];
-        crate::xbox::decode_c8(&bytes[null_position + 33..], width, height, palette)
-    } else {
-        crate::xbox::decode_rgba8(&bytes[null_position + 33..], width, height)
+    let texture_type = bytes[25];
+    match texture_type {
+        0x8C => crate::xbox::decode_rgba8(&bytes[33..], width, height),
+        0x8D => {
+            let palette = &bytes[bytes.len() - 1024..];
+            crate::xbox::decode_c8(&bytes[33..], width, height, palette)
+        }
+        0x8E => crate::xbox::decode_bc1(&bytes[33..], width, height),
+        0x8F => crate::xbox::decode_bc2(&bytes[33..], width, height),
+        0x90 => crate::xbox::decode_rgb5(&bytes[33..], width, height),
+        _ => panic!(),
     }
 }
 
-pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
+pub fn extract_xbox_textures(textures_path: &std::path::Path, output_path: &std::path::Path) {
     std::fs::create_dir_all(output_path).unwrap();
 
     let textures = std::fs::read(textures_path).unwrap();
@@ -35,7 +29,7 @@ pub fn extract_textures(textures_path: &std::path::Path, output_path: &std::path
     let file_list = crate::arc::list_files(&textures, crate::Endianness::Little);
 
     for (name, _, bytes) in file_list {
-        let image = convert(bytes);
+        let image = convert_xbox_texture(bytes);
         crate::save_texture(image, &name, output_path, SPECULAR_FILE_NAMES.contains(&name.as_str()));
     }
 }
