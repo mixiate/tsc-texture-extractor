@@ -7,7 +7,7 @@ fn compact(x: usize) -> usize {
     x
 }
 
-fn deswizzle_palette(
+fn deswizzle_c8(
     bytes: &[u8],
     dimensions: usize,
     output: &mut image::RgbaImage,
@@ -32,18 +32,18 @@ fn deswizzle_palette(
     }
 }
 
-pub fn decode_palette(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
+pub fn decode_c8(bytes: &[u8], width: usize, height: usize, palette: &[u8]) -> image::RgbaImage {
     let mut image = image::RgbaImage::new(width as _, height as _);
 
     if width == height {
-        deswizzle_palette(bytes, width, &mut image, palette, 0, 0);
+        deswizzle_c8(bytes, width, &mut image, palette, 0, 0);
     }
 
     if width > height {
         let section_count = width / height;
         for i in 0..section_count {
             let section_bytes = &bytes[i * (height * height)..];
-            deswizzle_palette(section_bytes, height, &mut image, palette, i * height, 0);
+            deswizzle_c8(section_bytes, height, &mut image, palette, i * height, 0);
         }
     }
 
@@ -52,14 +52,14 @@ pub fn decode_palette(bytes: &[u8], width: usize, height: usize, palette: &[u8])
         for i in 0..section_count {
             let section_bytes = &bytes[i * (width * width)..];
             let section_height_offset = (section_count * width) - ((i + 1) * width);
-            deswizzle_palette(section_bytes, width, &mut image, palette, 0, section_height_offset);
+            deswizzle_c8(section_bytes, width, &mut image, palette, 0, section_height_offset);
         }
     }
 
     image
 }
 
-fn deswizzle_rgba(bytes: &[u8], dimensions: usize, output: &mut image::RgbaImage, x_offset: usize, y_offset: usize) {
+fn deswizzle_rgba8(bytes: &[u8], dimensions: usize, output: &mut image::RgbaImage, x_offset: usize, y_offset: usize) {
     for i in 0..(dimensions * dimensions) {
         let x = compact(i);
         let y = compact(i >> 1);
@@ -76,18 +76,18 @@ fn deswizzle_rgba(bytes: &[u8], dimensions: usize, output: &mut image::RgbaImage
     }
 }
 
-pub fn decode_rgba(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
+pub fn decode_rgba8(bytes: &[u8], width: usize, height: usize) -> image::RgbaImage {
     let mut image = image::RgbaImage::new(width as _, height as _);
 
     if width == height {
-        deswizzle_rgba(bytes, width, &mut image, 0, 0);
+        deswizzle_rgba8(bytes, width, &mut image, 0, 0);
     }
 
     if width > height {
         let section_count = width / height;
         for i in 0..section_count {
             let section_bytes = &bytes[i * (height * height) * 4..];
-            deswizzle_rgba(section_bytes, height, &mut image, i * height, 0);
+            deswizzle_rgba8(section_bytes, height, &mut image, i * height, 0);
         }
     }
 
@@ -96,7 +96,7 @@ pub fn decode_rgba(bytes: &[u8], width: usize, height: usize) -> image::RgbaImag
         for i in 0..section_count {
             let section_bytes = &bytes[i * (width * width) * 4..];
             let section_height_offset = (section_count * width) - ((i + 1) * width);
-            deswizzle_rgba(section_bytes, width, &mut image, 0, section_height_offset);
+            deswizzle_rgba8(section_bytes, width, &mut image, 0, section_height_offset);
         }
     }
 

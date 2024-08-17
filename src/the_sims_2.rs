@@ -21,9 +21,9 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
         crate::xbox::decode_rgb5(&bytes[null_position + 33..], width, height)
     } else if flags & 0b1000_0000 > 0 && flags2 & 0b0000_0001 != 0 {
         let palette = &bytes[bytes.len() - 1024..];
-        crate::xbox::decode_palette(&bytes[null_position + 37..], width, height, palette)
+        crate::xbox::decode_c8(&bytes[null_position + 37..], width, height, palette)
     } else {
-        crate::xbox::decode_rgba(&bytes[null_position + 37..], width, height)
+        crate::xbox::decode_rgba8(&bytes[null_position + 37..], width, height)
     }
 }
 

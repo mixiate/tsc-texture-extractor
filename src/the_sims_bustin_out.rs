@@ -10,10 +10,10 @@ fn convert(bytes: &[u8]) -> image::RgbaImage {
     ));
 
     if bytes[null_position + 1] == 0x8C {
-        crate::xbox::decode_rgba(&bytes[null_position + 21..], width, height)
+        crate::xbox::decode_rgba8(&bytes[null_position + 21..], width, height)
     } else if bytes[null_position + 1] & 0b0000_0001 > 0 {
         let palette = &bytes[bytes.len() - 1024..];
-        crate::xbox::decode_palette(&bytes[null_position + 21..], width, height, palette)
+        crate::xbox::decode_c8(&bytes[null_position + 21..], width, height, palette)
     } else if bytes[null_position + 1] & 0b0001_0000 > 0 {
         crate::xbox::decode_bc2(&bytes[null_position + 33..], width, height)
     } else {

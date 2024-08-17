@@ -98,13 +98,13 @@ fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
 
     let texture_type = bytes[7];
     match texture_type {
-        0 => crate::xbox::decode_rgba(image_bytes, width, height),
+        0 => crate::xbox::decode_rgba8(image_bytes, width, height),
         2 => {
             let palette_count = usize::from(u16::from_le_bytes(bytes[9..11].try_into().unwrap()));
             match palette_count {
                 256 => {
                     let palette = &bytes[bytes.len() - 1024..];
-                    crate::xbox::decode_palette(image_bytes, width, height, palette)
+                    crate::xbox::decode_c8(image_bytes, width, height, palette)
                 }
                 _ => panic!(),
             }
