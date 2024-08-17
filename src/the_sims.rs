@@ -89,17 +89,28 @@ pub fn extract_gamecube_textures(datasets_path: &std::path::Path, output_path: &
 fn convert_xbox_texture(bytes: &[u8]) -> image::RgbaImage {
     let null_position = bytes.iter().position(|x| *x == 0).unwrap();
 
-    let width = usize::from(u16::from_le_bytes(
-        bytes[null_position + 3..null_position + 5].try_into().unwrap(),
-    ));
-    let height = usize::from(u16::from_le_bytes(
-        bytes[null_position + 5..null_position + 7].try_into().unwrap(),
-    ));
+    let bytes = &bytes[null_position..];
 
-    let image_bytes = &bytes[null_position + 21..];
-    let palette = &bytes[bytes.len() - 1024..];
+    let width = usize::from(u16::from_le_bytes(bytes[3..5].try_into().unwrap()));
+    let height = usize::from(u16::from_le_bytes(bytes[5..7].try_into().unwrap()));
 
-    crate::xbox::decode_palette(image_bytes, width, height, palette)
+    let image_bytes = &bytes[21..];
+
+    let texture_type = bytes[7];
+    match texture_type {
+        0 => crate::xbox::decode_rgba(image_bytes, width, height),
+        2 => {
+            let palette_count = usize::from(u16::from_le_bytes(bytes[9..11].try_into().unwrap()));
+            match palette_count {
+                256 => {
+                    let palette = &bytes[bytes.len() - 1024..];
+                    crate::xbox::decode_palette(image_bytes, width, height, palette)
+                }
+                _ => panic!(),
+            }
+        }
+        _ => panic!(),
+    }
 }
 
 pub fn extract_xbox_textures(datasets_path: &std::path::Path, output_path: &std::path::Path) {
